@@ -42,6 +42,7 @@ class XUnitReporter(object):
             'total': result.total_test_count,
             'errors': 0,
             'skip': result.skipped_tests,
+            'pending': result.pending_tests,
             'failures': result.errored_tests,
             'ts': datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
             'hostname': socket.gethostname(),
@@ -59,6 +60,7 @@ class XUnitReporter(object):
         testsuite_node.setAttribute('name', 'pyvows')
         testsuite_node.setAttribute('tests', str(result_summary['total']))
         testsuite_node.setAttribute('errors', str(result_summary['errors']))
+        testsuite_node.setAttribute('pending', str(result_summary['pending']))
         testsuite_node.setAttribute('failures', str(result_summary['failures']))
         testsuite_node.setAttribute('skip', str(result_summary['skip']))
         testsuite_node.setAttribute('timestamp', str(result_summary['ts']))

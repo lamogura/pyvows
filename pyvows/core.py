@@ -174,7 +174,7 @@ class Vows(object):
         cls.inclusion_patterns = test_name_pattern
 
     @classmethod
-    def run(cls, on_vow_success, on_vow_error, capture_error=False):
+    def run(cls, on_vow_success, on_vow_pending, on_vow_error, capture_error=False):
         #   FIXME: Add Docstring
         #
         #       *   Used by `run()` in `cli.py`
@@ -186,6 +186,7 @@ class Vows(object):
             cls.suites,
             cls.Context,
             on_vow_success,
+            on_vow_pending,
             on_vow_error,
             execution_plan,
             capture_error

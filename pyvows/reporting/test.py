@@ -13,7 +13,7 @@ from __future__ import division, print_function
 import sys
 from StringIO import StringIO
 
-from pyvows.color import yellow, red, blue
+from pyvows.color import yellow, red, blue, cyan
 from pyvows.reporting.common import (
     ensure_encoded,
     V_EXTRA_VERBOSE,
@@ -47,6 +47,13 @@ class VowsTestReporter(VowsReporter):
         sys.stdout.write(VowsReporter.HONORED)
 
     @classmethod
+    def on_vow_pending(cls, vow):
+        #   FIXME: Add Docstring / Comment description
+        #
+        #       *   Why is `vow` unused?
+        sys.stdout.write(VowsReporter.PENDING)
+
+    @classmethod
     def on_vow_error(cls, vow):
         #   FIXME: Add Docstring / Comment description
         #
@@ -63,7 +70,7 @@ class VowsTestReporter(VowsReporter):
         if not self.result.contexts:
             # FIXME:
             #   If no vows are found, how could any be broken?
-            summary = '{indent}{broken} No vows found! » 0 honored • 0 broken • 0 skipped (0.0s)'.format(
+            summary = '{indent}{broken} No vows found! » 0 honored • 0 pending • 0 broken • 0 skipped (0.0s)'.format(
                 indent=self.TAB * self.indent,
                 broken=VowsReporter.BROKEN)
             print(summary, file=file)
@@ -75,10 +82,14 @@ class VowsTestReporter(VowsReporter):
         for context in self.result.contexts:
             self.print_context(context['name'], context, file=file)
 
-        summary = '{0}{1} OK » {honored:d} honored • {broken:d} broken • {skipped:d} skipped ({time:.6f}s)'.format(
+        pending_tests = self.result.pending_tests
+        pending_text = '0 pending' if pending_tests <= 0 else cyan('{} pending'.format(pending_tests))
+
+        summary = '{0}{1} OK » {honored:d} honored • {broken:d} broken • {pending:s} • {skipped:d} skipped ({time:.6f}s)'.format(
             self.TAB * self.indent,
             self.status_symbol,
             honored=self.result.successful_tests,
+            pending=pending_text,
             broken=self.result.errored_tests,
             skipped=self.result.skipped_tests,
             time=self.result.elapsed_time
@@ -113,6 +124,19 @@ class VowsTestReporter(VowsReporter):
                     self.humanized_print('{0} {1} - {2}'.format(honored, topic, name), file=file)
                 else:
                     self.humanized_print('{0} {1}'.format(honored, name), file=file)
+
+        def _print_pending_test():
+            pending = ensure_encoded(VowsReporter.PENDING)
+            topic = ensure_encoded(test['topic'])
+            name = ensure_encoded(test['name'])
+
+            if self.verbosity == V_VERBOSE:
+                self.humanized_print('{0} {1}'.format(pending, name), file=file, color=cyan)
+            elif self.verbosity >= V_EXTRA_VERBOSE:
+                if test['enumerated']:
+                    self.humanized_print('{0} {1} - {2}'.format(pending, topic, name), file=file, color=cyan)
+                else:
+                    self.humanized_print('{0} {1}'.format(pending, name), file=file, color=cyan)
 
         def _print_skipped_test():
             if self.verbosity >= V_VERBOSE:
@@ -179,6 +203,8 @@ class VowsTestReporter(VowsReporter):
             for test in context['tests']:
                 if VowsResult.test_is_successful(test):
                     _print_successful_test()
+                elif test['pending']:
+                    _print_pending_test()
                 elif test['skip']:
                     _print_skipped_test()
                 else:

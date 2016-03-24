@@ -12,6 +12,8 @@ each vow.
 # Copyright (c) 2011 Bernardo Heynemann heynemann@gmail.com
 
 #-------------------------------------------------------------------------------
+import pdb
+PENDING_VOW = 'PYVOWS.PENDING'
 
 
 class VowsResult(object):
@@ -73,16 +75,16 @@ class VowsResult(object):
         `VowsResult` was 100% successful.
 
         '''
-        return self.successful_tests + self.skipped_tests == self.total_test_count
+        return self.successful_tests + self.skipped_tests + self.pending_tests == self.total_test_count
 
     @property
     def total_test_count(self):
         '''Returns the total number of tests.'''
-        return self.successful_tests + self.errored_tests + self.skipped_tests
+        return self.successful_tests + self.errored_tests + self.skipped_tests + self.pending_tests
 
     @staticmethod
     def test_is_successful(test):
-        return not (test['error'] or test['skip'])
+        return not (test['error'] or test['skip'] or test['pending'])
 
     @property
     def successful_tests(self):
@@ -91,7 +93,18 @@ class VowsResult(object):
             contexts=self.contexts,
             count_func=lambda context: (
                 len([t for t in context['tests'] if self.test_is_successful(t)])
-                + (0 if (context['error'] or context['skip']) else 1)
+                # + (0 if (context['error'] or context['skip']) else 1)
+            )
+        )
+    
+    @property
+    def pending_tests(self):
+        '''Returns the number of tests that are pending.'''
+        return self._count_contexts(
+            contexts=self.contexts,
+            count_func=lambda context: (
+                len([t for t in context['tests'] if t['pending']])
+                # + (0 if (context['error'] or context['skip']) else 1)
             )
         )
 

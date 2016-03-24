@@ -57,6 +57,7 @@ class VowsReporter(object):
 
     HONORED = green('✓')
     BROKEN = red('✗')
+    PENDING = '-'
     SKIPPED = '?'
     TAB = '  '
 
@@ -150,7 +151,7 @@ class VowsReporter(object):
     #-------------------------------------------------------------------------
     #   Printing Methods
     #-------------------------------------------------------------------------
-    def humanized_print(self, msg, indentation=None, file=sys.stdout):
+    def humanized_print(self, msg, indentation=None, file=sys.stdout, color=None):
         '''Passes `msg` through multiple text filters to make the output
         appear more like normal text, then prints it (indented by
         `indentation`).
@@ -162,8 +163,10 @@ class VowsReporter(object):
                                       # both of the above
         msg = msg.capitalize()
         msg = self.format_python_constants(msg)
-
-        print(self.indent_msg(msg, indentation), file=file)
+        msg = self.indent_msg(msg, indentation)
+        msg = color(msg) if color else msg
+        
+        print(msg, file=file)
 
     def print_traceback(self, err_type, err_obj, err_traceback, file=sys.stdout):
         '''Prints a color-formatted traceback with appropriate indentation.'''

@@ -15,7 +15,7 @@ PyVows is inspired by Vows, a BDD framework for Node.js.
 You typically shouldn't need to import any specific modules from the `pyvows`
 package.  Normal use is:
 
-    from pyvows import Vows, expect
+    from pyvows import Vows, expect, PENDING
 
 ----
 
@@ -42,5 +42,6 @@ except:
 
 try:
     from pyvows.core import Vows, expect
+    from pyvows.result import PENDING_VOW as PENDING
 except ImportError:
     pass
